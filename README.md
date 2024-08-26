@@ -1,7 +1,7 @@
-# Linear System Theory (Core Subject)
+# Estimation Theory (BK21)
 ## Professor in charge
-- Prof. Kim, Sung Hyun
+- Prof. Suh, Young-Soo
 ## Course time
-- Thurs, 2pm (6,7,8)
+- Tues, 9am (1,2,3)
 ## Room number
 - 7-309

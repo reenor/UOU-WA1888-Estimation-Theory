@@ -1,6 +1,6 @@
 # Estimation Theory (BK21)
 ## Professor in charge
-- Prof. Suh, Young-Soo
+- Prof. SUH, YOUNG-SOO
 ## Course time
 - Tues, 9am (1,2,3)
 ## Room number

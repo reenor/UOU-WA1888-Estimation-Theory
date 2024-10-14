@@ -21,7 +21,7 @@ R = 1; % m x m
 xh0 = [ 0   0]';
 P0  = eye(n);
 
-z = [4  9   16];
+z = [4   9   16];
 N = length(z);
 
 xh_result = zeros(n, N);
@@ -50,12 +50,8 @@ disp('xh_3 ='); disp(xh_result(:, 3));
 disp('P_3 = '); disp(P_result(:, :, 3));
 
 % Draw the results
-% figure;
-% subplot 211;    plot(tt, x, tt, xh_result, 'r');
-%                 xlabel('Time'); ylabel('x vs xhat'); legend('x', 'xhat');
-% subplot 212;    plot(tt, P_result); xlabel('Time'); ylabel('P(k)');
-
-% figure;
-% plot(tt, e_result, tt, sqrt(P_result), 'r', tt, -sqrt(P_result), 'r');
-% xlabel('Time'); ylabel('e(k) and SQRT of P(k)');
-% legend('e(k)', 'SQRT of P(k)');
+C = P_result(:, :, 3);
+m = xh_result(:, 3);
+K = 4.61; % Look up table with n = 2, Prob = 0.9
+r = draw_ellipse(C, m, K);
+plot(r(1,:), r(2,:), m(1), m(2), 'r*');

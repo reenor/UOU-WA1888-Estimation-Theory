@@ -7,37 +7,35 @@ clc, clearvars, close all
 %load('walking.mat');
 
 % 50 m walking
- load('longwalking1.mat');
+% load('longwalking1.mat');
 % load('longwalking2.mat');
+
+% Running
+load('running.mat');
+%plotsensor(ya);
 
 N = size(ya,2);
 ra = 0.005;
 rg = 0.001;
 T = 0.01;
+tt = 0:T:T*(N-1);
+length_ya = 3;
+length_yg = 4;
+threshold_ya = 35;
+threshold_yg = 8.5;
 
-% zero velocity detection
-yanorm = zeros(1,N);
-zerovel2 = zeros(1,N);
-for i = 1:N
-    yanorm(i) = norm(ya(:,i));
-    if ( (yanorm(i) < 9.8+0.5) && (yanorm(i) > 9.8 -0.5) )
-        zerovel2(i) = 1;
-    end
-end
+% zero velocity detection for ya
+yanorm = compute_sensor_norm(ya,1);
+zero_vel_ya = find_interval_lessthan(yanorm,threshold_ya,length_ya);
 
+% zero velocity detection for yg
+ygnorm = compute_sensor_norm(yg,1);
+zero_vel_yg = find_interval_lessthan(ygnorm,threshold_yg,length_yg);
 
-zerovel = zerovel2;
-M = 10;
-for i = M+1:N-M
-    if ( sum(zerovel2(i-M:i+M)) == 2*M+1 )
-        zerovel(i) = 1;
-    else
-        zerovel(i) = 0;
-    end      
-end
-
-plot(zerovel,'*');
-% return;
+% combine ya and yg
+zerovel = zero_vel_ya.*zero_vel_yg;
+figure; plot(tt,yanorm,'r-',tt,ygnorm,'b-',tt,zerovel,'b*')
+legend('yanorm','ygnorm','zerovel')
 
 qhat = zeros(4,N);
 vhat = zeros(3,N);
@@ -49,12 +47,12 @@ A(4:6,7:9) = eye(3);
 
 qhat(:,1) = quaternionya(ya(:,1));
 gtilde = [0 ; 0 ; 9.8];
-H = zeros(6,9);
-H(1:3,4:6) = eye(3); % r
-H(4:6,7:9) = eye(3); % v
-R = zeros(6,6);
-R(1:3,1:3) = 0.01 * eye(3); % r
-R(4:6,4:6) = 0.001 * eye(3); % v
+H = zeros(4,9); % project 1: insert position
+H(1,6) = 1; % project 1: position
+H(2:4,7:9) = eye(3); % project 1: velocity
+R = zeros(4,4); % project 1: insert position
+R(1,1) = 0.01; % project 1: position
+R(2:4,2:4) = 0.001 * eye(3); % project 1: velocity
 P = diag([0.001 0.001 0.001 0 0 0 0 0 0 ]);
 oldomega4 = zeros(4,4);
 for i = 2:N
@@ -75,7 +73,7 @@ for i = 2:N
     
     if ( zerovel(i) == 1 )
         z = zeros(3,1) - vhat(:,i);
-        z = [zeros(3,1) - rhat(:,i); z];
+        z = [0 - rhat(3,i); z]; % project 1: insert position into z
         K = P * H' * inv(H * P * H' + R);
         x = K * z;
     
@@ -91,6 +89,7 @@ for i = 2:N
     end
 end    
     
-    
 plotsensor(vhat);
 plotsensor(rhat);
+
+figure; plot(rhat(1,:),rhat(2,:)); axis equal

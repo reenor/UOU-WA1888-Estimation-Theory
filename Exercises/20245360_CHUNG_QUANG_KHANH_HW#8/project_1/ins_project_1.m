@@ -1,3 +1,5 @@
+clc, clearvars, close all
+
 % 25.7 cm lifting
 % load('lift.mat');
 
@@ -5,13 +7,14 @@
 % load('walking.mat');
 
 % 50 m walking
- load('longwalking1.mat');
+load('longwalking1.mat');
 % load('longwalking2.mat');
 
 N = size(ya,2);
 ra = 0.005;
 rg = 0.001;
 T = 0.01;
+tt = 0:T:T*(N-1);
 
 % zero velocity detection
 yanorm = zeros(1,N);
@@ -34,8 +37,8 @@ for i = M+1:N-M
     end      
 end
 
-% plot(zerovel,'*');
-% return;
+%plot(tt,yanorm,'r-',tt,zerovel,'b*');
+
 
 qhat = zeros(4,N);
 vhat = zeros(3,N);
@@ -47,9 +50,19 @@ A(4:6,7:9) = eye(3);
 
 qhat(:,1) = quaternionya(ya(:,1));
 gtilde = [0 ; 0 ; 9.8];
-H = zeros(3,9);
-H(:,7:9) = eye(3);
-R = 0.001 * eye(3);
+
+% H = zeros(3,9);
+% H(:,7:9) = eye(3);
+H = zeros(4,9); % project 1: insert z-axis of r
+H(1,6) = 1;
+H(2:4,7:9) = eye(3);
+
+% R = 0.001 * eye(3);
+R = zeros(4,4); 
+R(1,1) = 0.01; % project 1: insert measurement noise of r along z-axis
+R(2:4,2:4) = 0.001 * eye(3); % project 1: measurement noise of v
+
+
 P = diag([0.001 0.001 0.001 0 0 0 0 0 0 ]);
 oldomega4 = zeros(4,4);
 for i = 2:N
@@ -70,6 +83,7 @@ for i = 2:N
     
     if ( zerovel(i) == 1 )
         z = zeros(3,1) - vhat(:,i);
+        z = [0 - rhat(3,i); z]; % project 1: update z-value of r to zero
         K = P * H' * inv(H * P * H' + R);
         x = K * z;
     
@@ -83,7 +97,6 @@ for i = 2:N
         qhat(:,i) = quaternionmul(qhat(:,i),qe);
         qhat(:,i)=  qhat(:,i) / norm(qhat(:,i));
     end
-end    
+end
     
-    
-plotsensor(vhat);
+plotsensor(rhat);

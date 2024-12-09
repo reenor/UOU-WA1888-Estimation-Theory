@@ -92,4 +92,4 @@ end
 plotsensor(vhat);
 plotsensor(rhat);
 
-figure; plot(rhat(1,:),rhat(2,:)); axis equal
+figure; plot(rhat(1,:),rhat(2,:),LineWidth=2); axis equal

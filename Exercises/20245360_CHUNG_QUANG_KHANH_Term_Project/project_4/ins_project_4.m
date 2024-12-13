@@ -102,6 +102,6 @@ end
     
 %plotsensor(vhat);
 %plotsensor(rhat);
-figure; plot(tt, rhat(3,:),LineWidth=2);
+%figure; plot(tt, rhat(3,:),LineWidth=2);
 figure; plot3(rhat(1,:),rhat(2,:), rhat(3,:), 'b', LineWidth=3); axis equal
 grid on
